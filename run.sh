@@ -39,7 +39,7 @@ EOF
     trivy_scan ${SCANDIR} ${IMAGE}-with-updates
     grype_scan ${SCANDIR} ${IMAGE}-with-updates
 
-    IMG=$(echo ${IMAGE} | sed 's/\//\-\-/g')
+    IMG=$(echo ${IMAGE}-with-updates | sed 's/\//\-\-/g')
     VERSION=$(date +%Y%m%d)
     (cd ${WORKDIR};
      tar cvfz ${IMG}-scanalysis.tar.gz ${IMG} ;
