@@ -15,7 +15,7 @@ function trivy_scan {
     # Perform trivy scans
     IMG=$(echo ${2} | sed 's/\//\-\-/g')
     mkdir -p ${IMG}/trivy
-    trivy -f json -o ${IMG}/trivy/${IMG}.json image ${2}:latest
+    trivy -f json -o ${1}/trivy/${IMG}.json image ${2}:latest
 }
 
 function grype_scan {
@@ -26,7 +26,8 @@ function grype_scan {
 }
 
 for IMAGE in registry.access.redhat.com/ubi9 registry.access.redhat.com/ubi8 registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
-    SCANDIR=${WORKDIR}/${IMAGE}
+
+    SCANDIR=${WORKDIR}/$(echo ${IMAGE} | sed -e 's/regi.*\///g')
 
     echo "===== Processing ${IMAGE} =========================="
 
@@ -42,8 +43,9 @@ EOF
     IMG=$(echo ${IMAGE}-with-updates | sed 's/\//\-\-/g')
     VERSION=$(date +%Y%m%d)
     (cd ${WORKDIR};
-     tar cvfz ${IMG}-scanalysis.tar.gz ${IMG} ;
+     tar cvfz ${IMG}-scanalysis.tar.gz * ;
      oras push ghcr.io/open-scanalysis/${IMG}:${VERSION} ${IMG}-scanalysis.tar.gz:application/vnd.uknown/layer.v1+gzip ;
      oras tag ghcr.io/open-scanalysis/${IMG}:${VERSION} latest
+     rm -rf *
     )
 done
