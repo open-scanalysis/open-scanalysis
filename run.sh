@@ -25,6 +25,8 @@ function grype_scan {
     grype -o json=${IMG}/grype/${IMG}.json ${2}:latest
 }
 
+echo ${{ github.token }} | oras login ghcr.io -u ${{ github.actor }} --password-stdin
+
 for IMAGE in registry.access.redhat.com/ubi9 registry.access.redhat.com/ubi8 registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
     SCANDIR=${WORKDIR}/${IMAGE}
 
@@ -39,8 +41,11 @@ EOF
     trivy_scan ${SCANDIR} ${IMAGE}-with-updates
     grype_scan ${SCANDIR} ${IMAGE}-with-updates
 
-    IMG=$(echo ${IMAGE} | sed 's/regis.*\///g')
-    (cd ${WORKDIR}; tar cvfz ${IMG}-scanalisys.tar.gz ${IMG})
+    IMG=$(echo ${IMAGE} | sed 's/\//\-\-/g')
+    VERSION=$(date +%Y%m%d)
+    (cd ${WORKDIR};
+     tar cvfz ${IMG}-scanalysis.tar.gz ${IMG} ;
+     oras push ghcr.io/open-scanalysis/${IMG}:${VERSION} ${IMG}-scanalysis.tar.gz:application/vnd.uknown/layer.v1+gzip ;
+     oras tag ghcr.io/open-scanalysis/${IMG}:${VERSION} latest
+    )
 done
-
-cp ${WORKDIR}/*.tar.gz .
