@@ -23,7 +23,7 @@ function grype_scan {
     grype -o json=${1}/grype/${2}.json ${2}:latest
 }
 
-for IMAGE in registry.access.redhat.com/ubi9/ubi registry.access.redhat.com/ubi8/ubi registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
+for IMAGE in registry.access.redhat.com/ubi9 registry.access.redhat.com/ubi8 registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
     SCANDIR=${WORKDIR}/${IMAGE}
 
     echo "===== Processing ${IMAGE} =========================="
