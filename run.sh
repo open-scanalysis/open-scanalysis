@@ -25,8 +25,6 @@ function grype_scan {
     grype -o json=${IMG}/grype/${IMG}.json ${2}:latest
 }
 
-echo ${{ github.token }} | oras login ghcr.io -u ${{ github.actor }} --password-stdin
-
 for IMAGE in registry.access.redhat.com/ubi9 registry.access.redhat.com/ubi8 registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
     SCANDIR=${WORKDIR}/${IMAGE}
 
