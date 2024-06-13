@@ -299,14 +299,14 @@ code {
         (t
          (string< id1 id2))))))
 
-(let ((vuln-table (make-hash-table :test 'equal))
-      (report-filename (first (uiop:command-line-arguments)))
-      (grype-filename (second (uiop:command-line-arguments)))
-      (trivy-filename (third (uiop:command-line-arguments)))
-      (grype-json
-        (json:decode-json-from-string (uiop:read-file-string grype-filename)))
-      (trivy-json
-        (json:decode-json-from-string (uiop:read-file-string trivy-filename))))
+(let* ((vuln-table (make-hash-table :test 'equal))
+       (report-filename (first (uiop:command-line-arguments)))
+       (grype-filename (second (uiop:command-line-arguments)))
+       (trivy-filename (third (uiop:command-line-arguments)))
+       (grype-json
+         (json:decode-json-from-string (uiop:read-file-string grype-filename)))
+       (trivy-json
+         (json:decode-json-from-string (uiop:read-file-string trivy-filename))))
 
   (let ((vulns (cdr (assoc :*VULNERABILITIES (car (cdr (assoc :*RESULTS trivy-json)))))))
     (dolist (vuln-json vulns)
