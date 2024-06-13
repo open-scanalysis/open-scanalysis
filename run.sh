@@ -25,8 +25,8 @@ function grype_scan {
     grype -o json=${1}/grype/${IMG}.json ${2}:latest
 }
 
-apt update
-apt install sbcl
+sudo apt update
+sudo apt install sbcl
 git clone https://github.com/ocicl/ocicl
 (cd ocicl; sbcl --load setup.lisp; ocicl setup > ~/.sbclrc)
 
