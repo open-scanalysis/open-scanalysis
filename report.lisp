@@ -352,7 +352,7 @@ what I expect:
   <p><strong>Will not fix</strong>
 
 Here's some data for context:
-~A~%") (describe-container image) rhj)))
+~A~%" (describe-container image) rhj))))
 
           (print text)
           text))
