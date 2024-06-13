@@ -1,6 +1,10 @@
 (asdf:load-system :cl-json)
 (asdf:load-system :markup)
 (asdf:load-system :cl-who)
+(asdf:load-system :dexador)
+(asdf:load-system :completions)
+
+(setf completions:*debug-stream* uiop:*stdout*)
 
 (markup:enable-reader)
 
@@ -299,10 +303,69 @@ code {
         (t
          (string< id1 id2))))))
 
+(defun describe-container (image)
+  (cond
+    ((search "ubi8 image")
+     "RHEL 8 UBI")
+    ((search "ubi9" image)
+     "RHEL 9 UBI")
+    (t
+     image)))
+
+(defvar *count* 10)
+
+(defun get-analysis (id image)
+  (when (eq 0 *count*)
+    (return-from get-analysis))
+  (decf *count*)
+  (handler-case
+      (let* ((rhj (dex:get (format nil "https://access.redhat.com/hydra/rest/securitydata/cve/~A" id)))
+             (rhl (json:decode-json-from-string rhj))
+             (completer (make-instance 'completions:openai-completer
+                                       :model "gpt-4o"
+                                       :api-key (uiop:getenv "LLM_API_KEY"))))
+        (print "get-completion")
+        (let ((text
+                (completions:get-completion completer
+                                            (format nil "
+You are a cyber security analyst.  My ~A container image was
+flagged with CVE-2021-3997.  Respond with a short description of this
+CVE, and a risk assessment for containers based on this image.
+Respond in HTML format suitable for including directly in a <div>
+section.
+
+Don't include references.  Don't include container specific
+considerations. Rate the impact for the version of Linux being used.
+Do not wrap the HTML text in ```.  Here is an excellent example of
+what I expect:
+
+  <h2>Security Advisory: CVE-2021-3997</h2>
+  <p><strong>Description:</strong> CVE-2021-3997 is a vulnerability in <code>systemd</code> related to uncontrolled recursion in <code>systemd-tmpfiles</code>. This flaw may lead to a denial of service (DoS) at boot time when too many nested directories are created in <code>/tmp</code>. This can cause the system to exhaust its stack and crash. For more details, refer to the <a href=\"https://bugzilla.redhat.com/show_bug.cgi?id=2024639\" target=\"_blank\">Red Hat Bugzilla entry</a>.</p>
+
+  <h3>Risk Assessment:</h3>
+  <ul>
+    <li><strong>Red Hat Enterprise Linux 8 Impact:</strong> Rated as low due to the default 1024 nofile limit, which prevents <code>systemd-tmpfiles</code> from exhausting its stack and crashing.</li>
+    <li><strong>Mitigations:</strong> No direct mitigation provided by Red Hat. Regular updates and adherence to best practices for container security are recommended.</li>
+  </ul>
+
+  <h3>Fix state:</h3>
+  <p><strong>Will not fix</strong>
+
+Here's some data for context:
+~A~%") (describe-container image) rhj)))
+
+          (print text)
+          text))
+
+    (error (e)
+      (print e)
+      nil)))
+
 (let* ((vuln-table (make-hash-table :test 'equal))
        (report-filename (first (uiop:command-line-arguments)))
        (grype-filename (second (uiop:command-line-arguments)))
        (trivy-filename (third (uiop:command-line-arguments)))
+       (image-name (fourth (uiop:command-line-arguments)))
        (grype-json
          (json:decode-json-from-string (uiop:read-file-string grype-filename)))
        (trivy-json
@@ -317,7 +380,6 @@ code {
     (dolist (vuln-json vulns)
       (let ((vuln (make-instance 'grype-vulnerability :json vuln-json)))
         (push vuln (gethash (id vuln) vuln-table)))))
-
 
   (let ((ordered-vulns
           (let (vulns)
@@ -344,7 +406,7 @@ code {
                    <tr class="fold"><td colspan="4">
                    <div>
                    <div>
-                   ,(cl-who:escape-string (format nil "~A" (description (car (last vpair)))))
+                   ,(or (get-analysis (id (car vpair)) image-name) "")
                    <br>
                    </div>
                    <ul>
