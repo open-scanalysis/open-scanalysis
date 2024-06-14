@@ -48,7 +48,7 @@ EOF
     IMG=$(echo ${IMAGE}-with-updates | sed 's/\//\-\-/g')
     VERSION=$(date +%Y%m%d)
 
-    sbcl --load report.lisp $(pwd)/_site/${IMG}.html ${SCANDIR}/grype/* ${SCANDIR}/trivy/*
+    sbcl --load report.lisp $(pwd)/_site/${IMG}.html ${SCANDIR}/grype/* ${SCANDIR}/trivy/* ${IMAGE}
 
     (cd ${WORKDIR};
      tar cvfz ${IMG}-scanalysis.tar.gz * ;
