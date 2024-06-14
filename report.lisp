@@ -305,9 +305,9 @@ code {
 
 (defun describe-container (image)
   (cond
-    ((search "ubi8" "image")
+    ((search "ubi8" image)
      "RHEL 8")
-    ((search "ubi9" "image")
+    ((search "ubi9" image)
      "RHEL 9")
     (t
      image)))
