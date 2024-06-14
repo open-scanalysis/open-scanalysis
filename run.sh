@@ -48,6 +48,7 @@ for IMAGE in registry.access.redhat.com/ubi9 \
     # Install the latest package updates.
     cat > Containerfile <<EOF
 FROM ${IMAGE}:latest
+USER 0
 RUN yum -y update || microdnf -y update
 EOF
     podman build -t ${IMAGE}-with-updates .
