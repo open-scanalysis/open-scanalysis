@@ -306,9 +306,9 @@ code {
 (defun describe-container (image)
   (cond
     ((search "ubi8" "image")
-     "RHEL 8 UBI")
+     "RHEL 8")
     ((search "ubi9" "image")
-     "RHEL 9 UBI")
+     "RHEL 9")
     (t
      image)))
 
@@ -323,11 +323,8 @@ code {
              (rhl (json:decode-json-from-string rhj))
              (completer (make-instance 'completions:openai-completer
                                        :model "gpt-4o"
-                                       :api-key (uiop:getenv "LLM_API_KEY"))))
-        (print "get-completion")
-        (let ((text
-                (completions:get-completion completer
-                                            (format nil "
+                                       :api-key (uiop:getenv "LLM_API_KEY")))
+             (prompt (format nil "
 You are a cyber security analyst.  My ~A container image was
 flagged with a CVE.  Respond with a short description of this
 CVE, and a risk assessment for containers based on this image.
@@ -355,11 +352,13 @@ actual vulnerability:
 Here's some data for context.  Note that it includes the vulnerability ID that you
 should use in your risk assessment.  Also, you only need to provide a risk assessment
 that's relevant for my ~A container image:
-~A~%" (describe-container image) rhj (describe-container image)))))
-
+~A~%" (describe-container image) rhj (describe-container image))))
+        (print prompt)
+        (print "--------------------------------------------------------")
+        (let ((text (completions:get-completion completer prompt)))
           (print text)
+          (print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
           text))
-
     (error (e)
       (print e)
       nil)))
