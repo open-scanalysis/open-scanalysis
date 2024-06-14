@@ -31,7 +31,7 @@ jobs:
         shell: bash
       - name: Generate scan results
         env:
-          LLM_API_KEY: '${{ inputs.llm_api_key }}'
+          LLM_API_KEY: '${{ secrets.LLM_API_KEY }}'
         run: |
           echo ${{ github.token }} | oras login ghcr.io -u ${{ github.actor }} --password-stdin
           mkdir ./_site
