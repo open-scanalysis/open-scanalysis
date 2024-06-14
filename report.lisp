@@ -3,6 +3,7 @@
 (asdf:load-system :cl-who)
 (asdf:load-system :dexador)
 (asdf:load-system :completions)
+(asdf:load-system :local-time)
 
 (setf completions:*debug-stream* uiop:*stdout*)
 
@@ -279,9 +280,10 @@ code {
   </script>
   </html>)
 
-(defconstant +severity+ '("LOW" "MEDIUM" "HIGH" "CRITICAL" "UNKNOWN"))
+(defconstant +severity+ '("UNKNOWN" "LOW" "MEDIUM" "HIGH" "CRITICAL"))
 
 (defun vuln< (v1 v2)
+  "Sort vulnerabilities."
   (let ((v1 (car v1))
         (v2 (car v2)))
     (let ((id1 (id v1))
@@ -351,7 +353,9 @@ actual vulnerability:
 
 Here's some data for context.  Note that it includes the vulnerability ID that you
 should use in your risk assessment.  Also, you only need to provide a risk assessment
-that's relevant for my ~A container image:
+that's relevant for my ~A container image.  So, for instance, if I have a RHEL 9 container image,
+don't mention RHEL 8.  Here's the context for your analysis:
+
 ~A~%" (describe-container image) rhj (describe-container image))))
         (print prompt)
         (print "--------------------------------------------------------")
@@ -396,9 +400,11 @@ that's relevant for my ~A container image:
     (with-open-file (stream report-filename :direction :output
                                             :if-exists :supersede
                                             :if-does-not-exist :create)
-      ;; Make sure we have two for every...
       (markup:write-html-to-stream
        <page-template title="inscanity">
+       <h1>,(progn image-name)</h1>
+       <h2>With updates as of ,(local-time:format-timestring nil (local-time:now) :format local-time:+rfc-1123-format+) </h2>
+       <br>
        <table class="fold-table" id="results">
        <markup:merge-tag>
        <tr><th>ID</th><th>Component</th><th>Grype Severity</th><th>Trivy Severity</th></tr>

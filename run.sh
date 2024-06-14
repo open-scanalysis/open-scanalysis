@@ -30,7 +30,16 @@ sudo apt install sbcl
 git clone https://github.com/ocicl/ocicl
 (cd ocicl; sbcl --load setup.lisp; ocicl setup > ~/.sbclrc)
 
-for IMAGE in registry.access.redhat.com/ubi9 registry.access.redhat.com/ubi8 registry.access.redhat.com/ubi9-minimal registry.access.redhat.com/ubi8-minimal amazonlinux fedora; do
+for IMAGE in registry.access.redhat.com/ubi9 \
+                 registry.access.redhat.com/ubi8 \
+                 registry.access.redhat.com/ubi9-minimal \
+                 registry.access.redhat.com/ubi8-minimal \
+                 registry.access.redhat.com/ubi8/python-39 \
+                 registry.access.redhat.com/ubi8/python-311 \
+                 registry.access.redhat.com/ubi8/python-312 \
+                 registry.access.redhat.com/ubi9/python-39 \
+                 registry.access.redhat.com/ubi9/python-311 \
+                 registry.access.redhat.com/ubi9/python-312 do
 
     SCANDIR=${WORKDIR}/$(echo ${IMAGE} | sed -e 's/regi.*\///g')
 
