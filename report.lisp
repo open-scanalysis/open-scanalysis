@@ -406,7 +406,7 @@ Here's some data for context:
                    <tr class="fold"><td colspan="4">
                    <div>
                    <div>
-                   ,(or (get-analysis (id (car vpair)) image-name) "")
+                   ,(progn (markup:unescaped (or (get-analysis (id (car vpair)) image-name) "")))
                    <br>
                    </div>
                    <ul>
