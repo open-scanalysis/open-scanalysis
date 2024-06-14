@@ -329,7 +329,7 @@ code {
                 (completions:get-completion completer
                                             (format nil "
 You are a cyber security analyst.  My ~A container image was
-flagged with CVE-2021-3997.  Respond with a short description of this
+flagged with a CVE.  Respond with a short description of this
 CVE, and a risk assessment for containers based on this image.
 Respond in HTML format suitable for including directly in a <div>
 section.
@@ -337,7 +337,8 @@ section.
 Don't include references.  Don't include container specific
 considerations. Rate the impact for the version of Linux being used.
 Do not wrap the HTML text in ```.  Here is an excellent example of
-what I expect:
+what I expect,  but be sure to replace CVE-2021-3991 with the ID of the
+actual vulnerability:
 
   <h2>Security Advisory: CVE-2021-3997</h2>
   <p><strong>Description:</strong> CVE-2021-3997 is a vulnerability in <code>systemd</code> related to uncontrolled recursion in <code>systemd-tmpfiles</code>. This flaw may lead to a denial of service (DoS) at boot time when too many nested directories are created in <code>/tmp</code>. This can cause the system to exhaust its stack and crash. For more details, refer to the <a href=\"https://bugzilla.redhat.com/show_bug.cgi?id=2024639\" target=\"_blank\">Red Hat Bugzilla entry</a>.</p>
@@ -351,8 +352,10 @@ what I expect:
   <h3>Fix state:</h3>
   <p><strong>Will not fix</strong>
 
-Here's some data for context:
-~A~%" (describe-container image) rhj))))
+Here's some data for context.  Note that it includes the vulnerability ID that you
+should use in your risk assessment.  Also, you only need to provide a risk assessment
+that's relevant for my ~A container image:
+~A~%" (describe-container image) rhj (describe-container image)))))
 
           (print text)
           text))
